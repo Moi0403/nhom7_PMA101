@@ -36,7 +36,7 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtUsername_frame2"
+                android:id="@+id/edUser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#E2BCB7"
@@ -61,7 +61,7 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtPassword_frame2"
+                android:id="@+id/edPass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Mật khẩu"
@@ -86,7 +86,7 @@
         android:paddingRight="20dp">
 
         <CheckBox
-            android:id="@+id/chkRememberPassword_frame2"
+            android:id="@+id/chkNho"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -122,7 +122,7 @@
             android:text="Bạn đã có một tài khoản chưa?" />
 
         <TextView
-            android:id="@+id/tvSignIn_frame2"
+            android:id="@+id/tvDangKi"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

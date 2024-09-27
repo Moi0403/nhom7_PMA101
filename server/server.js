@@ -6,6 +6,7 @@ const port = 3000;
 const multer = require('multer');
 const COMMON = require('./database/COMMON');
 const SanPhamModel = require('./database/SanPhamModel');
+const UserModel = require('./database/UserModel');
 const uri = COMMON.uri;
 
 const bodyParser = require('body-parser');
@@ -66,3 +67,38 @@ router.delete('/del_sp/:id', async (req, res) => {
     }
 });
 
+router.post('/dangki', async (req, res)=>{
+    await mongoose.connect(uri);    
+    let user = req.body;
+    let kq = await UserModel.create(user);
+    console.log(kq);
+
+    let users = await UserModel.find();
+    console.log(users);
+    res.send(users);
+});
+
+router.post('/dangnhap', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const user = await UserModel.findOne({ username, password });
+        if (user) {
+            const role = user.role; // Lấy vai trò từ người dùng đã xác thực
+            res.status(200).json({ message: 'Đăng nhập thành công', role: role });
+        } else {
+            res.status(401).json({ message: 'Sai thông tin đăng nhập' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Lỗi máy chủ' });
+    }
+});
+
+
+
+router.get('/list_user', async (req, res)=>{
+    await mongoose.connect(uri);
+    let data = await UserModel.find();
+    res.send(data);
+})
