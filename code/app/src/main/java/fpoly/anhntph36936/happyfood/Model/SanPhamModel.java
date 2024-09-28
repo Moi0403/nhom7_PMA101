@@ -5,14 +5,14 @@ public class SanPhamModel {
     private String anhSP;
     private String tenSP;
     private String phanloaiSP;
-    private String trongluongSP;
-    private String giaSP;
+    private int trongluongSP;
+    private int giaSP;
     private String motaSP;
 
     public SanPhamModel() {
     }
 
-    public SanPhamModel(String _id, String anhSP, String tenSP, String phanloaiSP, String trongluongSP, String giaSP, String motaSP) {
+    public SanPhamModel(String _id, String anhSP, String tenSP, String phanloaiSP, int trongluongSP, int giaSP, String motaSP) {
         this._id = _id;
         this.anhSP = anhSP;
         this.tenSP = tenSP;
@@ -54,19 +54,19 @@ public class SanPhamModel {
         this.phanloaiSP = phanloaiSP;
     }
 
-    public String getTrongluongSP() {
+    public int getTrongluongSP() {
         return trongluongSP;
     }
 
-    public void setTrongluongSP(String trongluongSP) {
+    public void setTrongluongSP(int trongluongSP) {
         this.trongluongSP = trongluongSP;
     }
 
-    public String getGiaSP() {
+    public int getGiaSP() {
         return giaSP;
     }
 
-    public void setGiaSP(String giaSP) {
+    public void setGiaSP(int giaSP) {
         this.giaSP = giaSP;
     }
 

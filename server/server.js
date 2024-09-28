@@ -50,6 +50,29 @@ router.post('/add_sp', async (req, res) => {
     res.send(sp);
 });
 
+router.put('/up_sp/:id', async (req, res)=>{
+    try {
+        const id = req.params.id;
+        const data = req.body;
+
+        await mongoose.connect(uri);
+        console.log('Kết nối DB thành công');
+
+        const result = await SanPhamModel.findByIdAndUpdate(id, data);
+
+        if (result) {
+            let products = await SanPhamModel.find();
+            console.log(products);
+            res.send(products);
+        } else {
+            res.send('Không tìm thấy sản phẩm để cập nhật');
+        }
+    } catch (error) {
+        console.error('Lỗi khi cập nhật:', error);
+        res.send('Lỗi khi cập nhật');
+    }
+});
+
 router.delete('/del_sp/:id', async (req, res) => {
     try {
         await mongoose.connect(uri);

@@ -3,15 +3,11 @@
     <item
         android:id="@+id/menu_home"
         android:icon="@drawable/ql_sp"
-        android:title="Sản phẩm"/>
+        android:title="Home"/>
     <item
         android:id="@+id/menu_donhang"
         android:icon="@drawable/donhang"
         android:title="Đơn Hàng"/>
-    <item
-        android:id="@+id/menu_thongke"
-        android:icon="@drawable/thongke"
-        android:title="Thống Kê"/>
     <group android:checkableBehavior="single">
         <item android:title="ADMIN">
             <menu>
@@ -27,10 +23,6 @@
                     android:id="@+id/menu_ql_donhang"
                     android:icon="@drawable/donhang"
                     android:title="Quản lý đơn hàng"/>
-                <item
-                    android:id="@+id/menu_ql_binhluan"
-                    android:icon="@drawable/comment"
-                    android:title="Quản lý Bình luận"/>
                 <item
                     android:id="@+id/menu_ql_doanhthu"
                     android:icon="@drawable/thongke"
@@ -61,7 +53,6 @@
                     android:id="@+id/menu_nd_themnd"
                     android:icon="@drawable/phone"
                     android:title="Liên Hệ"/>
-
                 <item
                     android:id="@+id/menu_nd_exit"
                     android:icon="@drawable/exit"

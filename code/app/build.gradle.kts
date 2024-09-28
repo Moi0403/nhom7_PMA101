@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_EXPRESSION")
+
 plugins {
     id("com.android.application")
 }
@@ -24,6 +26,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+    buildFeatures{
+        viewBinding =  true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

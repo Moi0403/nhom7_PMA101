@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#FDFCFC"
+    android:orientation="vertical">
+
+
+
+    <RelativeLayout
+        android:id="@+id/relative1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edTimKiem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập tên đồ ăn"
+                android:paddingStart="50dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/imgTimKiem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="20dp"
+            android:onClick="onSearchButtonClick"
+            android:src="@drawable/frame4_kinh_lup" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tvNewItemsJuly"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@+id/relative1"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="7dp"
+        android:background="#F46451"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="#ffff"
+        android:textSize="25sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_frame4"
+        android:background="#FFFFFF"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tvNewItemsJuly"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp" />
+
+
+</RelativeLayout>

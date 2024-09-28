@@ -21,7 +21,7 @@ const sanPhamSchema = new mongoose.Schema({
         type: Number,
         required: true, 
     },
-    mota: {
+    motaSP: {
         type: String,
         required: true,
     }

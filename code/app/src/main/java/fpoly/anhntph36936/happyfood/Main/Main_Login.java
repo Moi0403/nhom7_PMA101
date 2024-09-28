@@ -4,6 +4,7 @@ package fpoly.anhntph36936.happyfood.Main;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,9 +14,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import fpoly.anhntph36936.happyfood.API.APIResponse;
 import fpoly.anhntph36936.happyfood.API.API_Host;
+import fpoly.anhntph36936.happyfood.API.DangNhapRequest;
 import fpoly.anhntph36936.happyfood.MainActivity;
-import fpoly.anhntph36936.happyfood.Model.UserModel;
 import fpoly.anhntph36936.happyfood.R;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,6 +40,8 @@ public class Main_Login extends AppCompatActivity {
         edtPass = findViewById(R.id.edPass);
         chkNho = findViewById(R.id.chkNho);
         tv_DK = findViewById(R.id.tvDangKi);
+
+        loadSavedLogin();
 
         tv_DK.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +80,9 @@ public class Main_Login extends AppCompatActivity {
                             String role = userModel.getRole(); // Lấy vai trò từ phản hồi
 
                             if (userModel.getMessage().equals("Đăng nhập thành công")) {
+                                if (chkNho.isChecked()) {
+                                    saveLogin(user, pass);
+                                }
                                 if (role.equals("adm")) {
                                     Intent intent = new Intent(Main_Login.this, MainActivity.class);
                                     startActivity(intent);
@@ -102,5 +109,28 @@ public class Main_Login extends AppCompatActivity {
             }
         });
 
+    }
+    private void saveLogin(String username, String password) {
+        SharedPreferences sharedPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("username", username);
+        editor.putString("password", password);
+        editor.putBoolean("rememberMe", true);
+        editor.apply();
+    }
+
+
+    private void loadSavedLogin() {
+        SharedPreferences sharedPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
+        String username = sharedPreferences.getString("username", "");
+        String password = sharedPreferences.getString("password", "");
+        boolean rememberMe = sharedPreferences.getBoolean("rememberMe", false);
+
+
+        if (rememberMe) {
+            edtUser.setText(username);
+            edtPass.setText(password);
+            chkNho.setChecked(true);
+        }
     }
 }

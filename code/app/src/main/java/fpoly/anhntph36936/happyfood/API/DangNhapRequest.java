@@ -1,4 +1,4 @@
-package fpoly.anhntph36936.happyfood.Main;
+package fpoly.anhntph36936.happyfood.API;
 
 public class DangNhapRequest {
     private String username;
