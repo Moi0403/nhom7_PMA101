@@ -33,4 +33,11 @@ public interface API_Host {
     Call<ArrayList<SanPhamModel>> up_sp(@Path("id") String id, @Body SanPhamModel model);
     @DELETE("/api/del_sp/{id}")
     Call<ArrayList<SanPhamModel>> del_sp(@Path("id") String id);
+
+    @GET("/api/search/{tenSP}")
+    Call<ArrayList<SanPhamModel>> tim(@Path("tenSP") String tenSP);
+
+    @GET("/api/getSP/{id}")
+    Call<SanPhamModel> getSP(@Path("id") String id);
+
 }

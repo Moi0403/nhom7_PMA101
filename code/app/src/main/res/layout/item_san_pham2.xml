@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="15dp"
+    android:layout_height="wrap_content"
+    android:id="@+id/cardView"
+    app:cardCornerRadius="10dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/imgSanPham_itemGrid"
+            android:layout_width="170dp"
+            android:layout_gravity="center"
+            android:layout_height="170dp"
+            />
+        <TextView
+            android:id="@+id/tv_tensp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textColor="#ff00"
+            android:textStyle="bold"
+            android:text="sp1"/>
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvGiaSanPham_itemGrid"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:gravity="center"
+                android:layout_marginRight="10dp"
+                android:text="30000 vnd"
+                android:textStyle="bold"
+                android:textSize="20sp"/>
+            <ImageView
+                android:id="@+id/imgGioHang_itemGrid"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_weight="1.5"
+                android:src="@drawable/donhang"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

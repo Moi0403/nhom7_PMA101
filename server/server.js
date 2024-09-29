@@ -90,6 +90,40 @@ router.delete('/del_sp/:id', async (req, res) => {
     }
 });
 
+router.get('/search/:tenSP', async (req, res) => {
+    const ten = req.params.tenSP;
+    try {
+        let sanpham;
+
+        if (ten) {
+            sanpham = await SanPhamModel.find({ tenSP: { $regex: new RegExp(ten, "i") } });
+        } else {
+            sanpham = await SanPhamModel.find();
+        }
+
+        res.send(sanpham);
+    } catch (error) {
+        console.error('Error searching products:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+router.get('/getSP/:id', async (req, res) => {
+    try {
+        await mongoose.connect(uri);
+        let id = req.params.id;
+        const sanpham = await SanPhamModel.findById(id);
+        if (!sanpham) {
+            return res.status(404).send('Sản phẩm không tồn tại');
+        }
+        res.send(sanpham);
+    } catch (error) {
+        console.error('Error fetching product by ID:', error);
+        res.status(500).send('Lỗi máy chủ');
+    }
+});
+
+
 router.post('/dangki', async (req, res)=>{
     await mongoose.connect(uri);    
     let user = req.body;

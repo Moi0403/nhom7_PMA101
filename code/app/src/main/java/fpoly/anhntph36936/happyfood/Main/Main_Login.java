@@ -6,11 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +33,8 @@ public class Main_Login extends AppCompatActivity {
     CheckBox chkNho;
     TextView tv_DK;
     private API_Host apiService;
+    public boolean isVisiblePassword = false;
+    private ImageView imgShowPassword_frame2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +44,7 @@ public class Main_Login extends AppCompatActivity {
         edtPass = findViewById(R.id.edPass);
         chkNho = findViewById(R.id.chkNho);
         tv_DK = findViewById(R.id.tvDangKi);
+        imgShowPassword_frame2 = findViewById(R.id.imgShowPassword_frame2);
 
         loadSavedLogin();
 
@@ -109,6 +114,13 @@ public class Main_Login extends AppCompatActivity {
             }
         });
 
+        imgShowPassword_frame2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPassword();
+            }
+        });
+
     }
     private void saveLogin(String username, String password) {
         SharedPreferences sharedPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
@@ -132,5 +144,19 @@ public class Main_Login extends AppCompatActivity {
             edtPass.setText(password);
             chkNho.setChecked(true);
         }
+    }
+
+    public void showPassword() {
+        if (isVisiblePassword) {
+            // Ẩn password
+            edtPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            isVisiblePassword = false;
+        } else {
+            // Hiện password
+            edtPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            isVisiblePassword = true;
+        }
+
+        edtPass.setSelection(edtPass.getText().length());
     }
 }
