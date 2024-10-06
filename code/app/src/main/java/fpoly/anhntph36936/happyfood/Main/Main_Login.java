@@ -20,6 +20,7 @@ import fpoly.anhntph36936.happyfood.API.APIResponse;
 import fpoly.anhntph36936.happyfood.API.API_Host;
 import fpoly.anhntph36936.happyfood.API.DangNhapRequest;
 import fpoly.anhntph36936.happyfood.MainActivity;
+import fpoly.anhntph36936.happyfood.Model.UserModel;
 import fpoly.anhntph36936.happyfood.R;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -82,9 +83,13 @@ public class Main_Login extends AppCompatActivity {
                     public void onResponse(Call<APIResponse> call, Response<APIResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             APIResponse userModel = response.body();
+                            Log.d("APIResponse", "Response: " + userModel.toString());
                             String role = userModel.getRole(); // Lấy vai trò từ phản hồi
 
+
                             if (userModel.getMessage().equals("Đăng nhập thành công")) {
+                                String maUser = userModel.getMaUser(); // Giả sử API trả về userId
+                                saveUserId(maUser);
                                 if (chkNho.isChecked()) {
                                     saveLogin(user, pass);
                                 }
@@ -130,6 +135,13 @@ public class Main_Login extends AppCompatActivity {
         editor.putBoolean("rememberMe", true);
         editor.apply();
     }
+    private void saveUserId(String maUser) {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("maUser", maUser);
+        editor.apply(); // Hoặc editor.commit();
+    }
+
 
 
     private void loadSavedLogin() {

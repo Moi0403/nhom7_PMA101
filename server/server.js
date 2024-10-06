@@ -7,6 +7,7 @@ const multer = require('multer');
 const COMMON = require('./database/COMMON');
 const SanPhamModel = require('./database/SanPhamModel');
 const UserModel = require('./database/UserModel');
+const GioHangModel = require('./database/GioHangModel');
 const uri = COMMON.uri;
 
 const bodyParser = require('body-parser');
@@ -158,4 +159,57 @@ router.get('/list_user', async (req, res)=>{
     await mongoose.connect(uri);
     let data = await UserModel.find();
     res.send(data);
-})
+});
+
+
+
+router.post('/addGioHang', async (req, res) => {
+    try {
+        await mongoose.connect(uri);
+        const data = req.body;
+        const newGH = new GioHangModel({
+            maUser: data.maUser,
+            maSP: data.maSP,
+            soLuong: data.soLuong,
+            trangThaiMua: data.trangThaiMua,
+        })
+        const result = await newGH.save();
+        if (result) {
+            res.json({
+                "status": 200,
+                "messenger": "Thêm thành công",
+                "data": result
+            })
+        } else {
+            res.json({
+                "status": 400,
+                "messenger": "Thêm không thành công",
+                "data": []
+            })
+
+        }
+        
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+});
+router.get('/list_gh/:maUser', async (req, res) => {
+    const { maUser } = req.params;
+
+    try {
+        const gioHang = await GioHangModel.find({ maUser: maUser })
+            .populate('maSP') // Thêm để lấy thông tin sản phẩm (nếu cần)
+            .exec();
+
+        if (gioHang.length === 0) {
+            return res.status(404).json({ message: 'Giỏ hàng trống' });
+        }
+
+        res.status(200).json(gioHang);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Lỗi máy chủ' });
+    }
+});
+
+

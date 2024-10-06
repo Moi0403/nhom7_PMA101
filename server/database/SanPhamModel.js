@@ -27,7 +27,6 @@ const sanPhamSchema = new mongoose.Schema({
     }
 });
 
-// Tạo model từ schema
-const SanPhamModel = mongoose.model('SanPham', sanPhamSchema);
+const SanPhamModel = mongoose.model('sanpham', sanPhamSchema);
 
 module.exports = SanPhamModel;
