@@ -1,6 +1,8 @@
 package fpoly.anhntph36936.happyfood.Model;
 
-public class SanPhamModel {
+import java.io.Serializable;
+
+public class SanPhamModel implements Serializable {
     private String _id;
     private String anhSP;
     private String tenSP;

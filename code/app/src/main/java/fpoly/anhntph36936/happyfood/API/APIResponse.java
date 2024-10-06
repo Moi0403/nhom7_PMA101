@@ -8,7 +8,7 @@ public class APIResponse {
 
     private String message;
     private String role;
-    private String maUser;
+    private String _id;
     private ArrayList<GioHangModel> data;
 
     public ArrayList<GioHangModel> getData() {
@@ -35,11 +35,11 @@ public class APIResponse {
         this.role = role;
     }
 
-    public String getMaUser() {
-        return maUser;
+    public String get_id() {
+        return _id;
     }
 
-    public void setMaUser(String maUser) {
-        this.maUser = maUser;
+    public void set_id(String _id) {
+        this._id = _id;
     }
 }

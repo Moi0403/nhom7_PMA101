@@ -2,6 +2,7 @@ package fpoly.anhntph36936.happyfood.Frag_User;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +42,7 @@ public class Frag_GioHang extends Fragment {
     GioHang_ADT gioHangAdt;
     ImageView imgBack;
     public Button btnMua_hang;
+
     ArrayList<GioHangModel> list = new ArrayList<>();
     @Nullable
     @Override
@@ -47,18 +50,20 @@ public class Frag_GioHang extends Fragment {
         View view = inflater.inflate(R.layout.fragment_giohang, container, false);
         recyclerView = view.findViewById(R.id.recycler_view_gio_hang);
 
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", getContext().MODE_PRIVATE);
-        maUser = sharedPreferences.getString("maUser", null);
+        maUser = getMaUser();
 
-        if (maUser == null) {
+        if (TextUtils.isEmpty(maUser)) {
             Toast.makeText(getContext(), "Vui lòng đăng nhập để xem giỏ hàng", Toast.LENGTH_SHORT).show();
-            // Có thể điều hướng đến màn hình đăng nhập hoặc xử lý phù hợp
         } else {
-            getGH(); // Gọi phương thức để lấy giỏ hàng
+            getGH(maUser); // Pass maUser to the getGH method
         }
         return view;
     }
-    private void getGH() {
+    private String getMaUser() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyUser", getActivity().MODE_PRIVATE);
+        return sharedPreferences.getString("id", "");
+    }
+    private void getGH(String maUser) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_Host.DOMAIN)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -70,16 +75,18 @@ public class Frag_GioHang extends Fragment {
             @Override
             public void onResponse(Call<ArrayList<GioHangModel>> call, Response<ArrayList<GioHangModel>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    list = response.body();
+                    list = response.body();  // Lưu danh sách giỏ hàng
+
+                    // Kiểm tra nếu giỏ hàng không rỗng
                     if (list.isEmpty()) {
-                        Toast.makeText(getContext(), "Giỏ hàng trống", Toast.LENGTH_SHORT).show();
-                    } else {
-                        gioHangAdt = new GioHang_ADT(getContext(), list);
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                        recyclerView.setAdapter(gioHangAdt);
+                        Toast.makeText(getContext(), "Giỏ hàng của bạn hiện tại đang trống.", Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Toast.makeText(getContext(), "Lỗi từ server", Toast.LENGTH_SHORT).show();
+
+                    // Cài đặt adapter để hiển thị giỏ hàng lên RecyclerView
+                    gioHangAdt = new GioHang_ADT(getContext(), list);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                    recyclerView.setAdapter(gioHangAdt);
+
                 }
             }
 

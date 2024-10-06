@@ -142,8 +142,9 @@ router.post('/dangnhap', async (req, res) => {
     try {
         const user = await UserModel.findOne({ username, password });
         if (user) {
+            const id = user._id;
             const role = user.role; // Lấy vai trò từ người dùng đã xác thực
-            res.status(200).json({ message: 'Đăng nhập thành công', role: role });
+            res.status(200).json({ message: 'Đăng nhập thành công', role: role , _id: id});
         } else {
             res.status(401).json({ message: 'Sai thông tin đăng nhập' });
         }
@@ -153,7 +154,22 @@ router.post('/dangnhap', async (req, res) => {
     }
 });
 
-
+router.delete('/del_user/:id', async (req, res)=>{
+    try {
+        await mongoose.connect(uri);
+        let id = req.params.id;
+        console.log(id);
+        const result = await UserModel.deleteOne({ _id: id });
+        if (result) {
+            console.log('Xoa thanh cong');
+        } else {
+            res.send('Xóa không thành công');
+        }
+    } catch (error) {
+        console.error('Lỗi khi xóa:', error);
+        res.send('Lỗi khi xóa');
+    }
+});
 
 router.get('/list_user', async (req, res)=>{
     await mongoose.connect(uri);
@@ -193,22 +209,89 @@ router.post('/addGioHang', async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 });
-router.get('/list_gh/:maUser', async (req, res) => {
-    const { maUser } = req.params;
 
+router.get('/list_gh/:id', async (req, res) => {
+    const { id } = req.params;
+  
+    // Validate ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid ID' });
+    }
+  
     try {
-        const gioHang = await GioHangModel.find({ maUser: maUser })
-            .populate('maSP') // Thêm để lấy thông tin sản phẩm (nếu cần)
-            .exec();
-
-        if (gioHang.length === 0) {
-            return res.status(404).json({ message: 'Giỏ hàng trống' });
-        }
-
-        res.status(200).json(gioHang);
+      const userId = new mongoose.Types.ObjectId(id);
+  
+      const cartItems = await GioHangModel.find({ maUser: userId })
+        .populate('maSP')
+        .exec();
+  
+      if (cartItems.length === 0) {
+        return res.status(404).json({ message: 'User not found or cart is empty' });
+      }
+  
+      res.status(200).json(cartItems);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Lỗi máy chủ' });
+      console.error('Error fetching cart items:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+router.delete('/del_gh/:id', async(req, res)=>{
+    try {
+        await mongoose.connect(uri);
+        let id = req.params.id;
+        console.log(id);
+        const result = await GioHangModel.deleteOne({ _id: id });
+        if (result) {
+            console.log('Xoa thanh cong');
+        } else {
+            res.send('Xóa không thành công');
+        }
+    } catch (error) {
+        console.error('Lỗi khi xóa:', error);
+        res.send('Lỗi khi xóa');
+    }
+});
+
+router.post('/updateGioHang', async (req, res) => {
+    try {
+        await mongoose.connect(uri);
+        const data = req.body;
+
+        // Tìm sản phẩm trong giỏ hàng của người dùng với sản phẩm có ID đã có trong giỏ hàng hay không
+        const existingItem = await GioHangModel.findOne({
+            maUser: data.maUser,
+            'maSP._id': data.maSP._id
+        });
+
+        if (existingItem) {
+            // Nếu sản phẩm đã có trong giỏ hàng, cập nhật số lượng
+            existingItem.soLuong = data.soLuong;  // Cập nhật số lượng sản phẩm
+            await existingItem.save();  // Lưu thay đổi vào DB
+
+            return res.json({
+                "status": 200,
+                "messenger": "Cập nhật giỏ hàng thành công",
+                "data": existingItem
+            });
+        } else {
+            // Nếu sản phẩm chưa có trong giỏ hàng, thêm mới sản phẩm vào giỏ hàng
+            const newGH = new GioHangModel({
+                maUser: data.maUser,
+                maSP: data.maSP,
+                soLuong: data.soLuong,
+                trangThaiMua: data.trangThaiMua,
+            });
+            const result = await newGH.save();  // Lưu giỏ hàng mới vào DB
+
+            return res.json({
+                "status": 200,
+                "messenger": "Thêm giỏ hàng thành công",
+                "data": result
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
     }
 });
 

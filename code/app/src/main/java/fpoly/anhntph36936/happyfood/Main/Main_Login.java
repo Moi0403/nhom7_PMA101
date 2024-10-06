@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -84,12 +85,13 @@ public class Main_Login extends AppCompatActivity {
                         if (response.isSuccessful() && response.body() != null) {
                             APIResponse userModel = response.body();
                             Log.d("APIResponse", "Response: " + userModel.toString());
-                            String role = userModel.getRole(); // Lấy vai trò từ phản hồi
-
+                            String role = userModel.getRole();
+                            String maUser =  userModel.get_id();
 
                             if (userModel.getMessage().equals("Đăng nhập thành công")) {
-                                String maUser = userModel.getMaUser(); // Giả sử API trả về userId
-                                saveUserId(maUser);
+
+
+                                saveMaUser(maUser);
                                 if (chkNho.isChecked()) {
                                     saveLogin(user, pass);
                                 }
@@ -135,10 +137,10 @@ public class Main_Login extends AppCompatActivity {
         editor.putBoolean("rememberMe", true);
         editor.apply();
     }
-    private void saveUserId(String maUser) {
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+    private void saveMaUser(String maUser) {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyUser", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("maUser", maUser);
+        editor.putString("id", maUser);
         editor.apply(); // Hoặc editor.commit();
     }
 

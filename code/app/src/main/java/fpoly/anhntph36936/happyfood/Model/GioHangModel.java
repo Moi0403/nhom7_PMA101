@@ -5,14 +5,14 @@ import java.io.Serializable;
 public class GioHangModel implements Serializable {
     private String _id;
     private String maUser;
-    private String maSP;
+    private SanPhamModel maSP;
     private int soLuong;
     private int trangThaiMua;
 
     public GioHangModel() {
     }
 
-    public GioHangModel(String _id, String maUser, String maSP, int soLuong, int trangThaiMua) {
+    public GioHangModel(String _id, String maUser, SanPhamModel maSP, int soLuong, int trangThaiMua) {
         this._id = _id;
         this.maUser = maUser;
         this.maSP = maSP;
@@ -36,11 +36,11 @@ public class GioHangModel implements Serializable {
         this.maUser = maUser;
     }
 
-    public String getMaSP() {
+    public SanPhamModel getMaSP() {
         return maSP;
     }
 
-    public void setMaSP(String maSP) {
+    public void setMaSP(SanPhamModel maSP) {
         this.maSP = maSP;
     }
 

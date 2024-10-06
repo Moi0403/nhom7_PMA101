@@ -25,6 +25,9 @@ public interface API_Host {
     @POST("/api/dangki")
     Call<ArrayList<UserModel>> DangKi(@Body UserModel model);
 
+    @DELETE("/api/del_user/{id}")
+    Call<ArrayList<UserModel>> del_user(@Path("id") String id);
+
     @GET("/api/list_user")
     Call<ArrayList<UserModel>> ListUser();
 
@@ -43,9 +46,14 @@ public interface API_Host {
     @GET("/api/getSP/{id}")
     Call<SanPhamModel> getSP(@Path("id") String id);
 
-    @GET("/api/list_gh/{maUser}")
-    Call<ArrayList<GioHangModel>> getGioHang(@Path("maUser") String maUser);
+    @GET("/api/list_gh/{id}")
+    Call<ArrayList<GioHangModel>> getGioHang(@Path("id") String id);
 
     @POST("/api/addGioHang")
-    Call<ArrayList<GioHangModel>> addGH(@Body GioHangModel gioHangModel);
+    Call<GioHangModel> addGH(@Body GioHangModel gioHangModel);
+
+    @DELETE("/api/del_gh/{id}")
+    Call<ArrayList<GioHangModel>> del_gh(@Path("id") String id);
+    @POST("/updateGioHang")
+    Call<GioHangModel> updateGH(@Body GioHangModel gioHangModel);
 }

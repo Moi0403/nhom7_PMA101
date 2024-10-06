@@ -3,6 +3,8 @@ package fpoly.anhntph36936.happyfood.Adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,27 +68,24 @@ public class SanPhamHome_ADT extends RecyclerView.Adapter<SanPhamHome_ADT.MyView
         holder.imgGioHang_itemGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (list_user != null && !list_user.isEmpty()) {
-                    String id_user = list_user.get(0).get_id(); // Lấy ID người dùng đầu tiên
-
-                    // Tạo đối tượng sản phẩm từ danh sách
-                    SanPhamModel sanPham = list.get(position);
-                    String maSP = sanPham.get_id(); // Lấy ID sản phẩm
-
-                    // Tạo đối tượng GioHangModel
-                    GioHangModel gioHangModel = new GioHangModel();
-//                    gioHangModel.setMaUser(list_user.get(0)); // Thiết lập đối tượng UserModel
-//                    gioHangModel.setMaSP(sanPham); // Thiết lập đối tượng SanPhamModel
-                    gioHangModel.setSoLuong(1); // Thiết lập số lượng mặc định là 1
-                    gioHangModel.setTrangThaiMua(0); // Thiết lập trạng thái mua (0 = chưa mua)
-
-                    // Gọi hàm thêm vào giỏ hàng
-                    addGH(gioHangModel);
-                } else {
-                    Toast.makeText(context, "Danh sách người dùng không có", Toast.LENGTH_SHORT).show();
+                String maUser = getMaUser();
+                if (maUser.isEmpty()) {
+                    Toast.makeText(context, "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                // Tạo đối tượng GioHangModel
+                GioHangModel gioHangModel = new GioHangModel();
+                gioHangModel.setMaUser(maUser);  // Đặt ID người dùng từ SharedPreferences
+                gioHangModel.setMaSP(model);  // Đặt ID sản phẩm từ model
+                gioHangModel.setSoLuong(1);  // Thiết lập số lượng sản phẩm mặc định là 1
+                gioHangModel.setTrangThaiMua(0);  // Thiết lập trạng thái mua (0: chưa mua)
+
+               checkAndAddToCart(gioHangModel);
             }
         });
+
+
 
     }
 
@@ -110,28 +109,120 @@ public class SanPhamHome_ADT extends RecyclerView.Adapter<SanPhamHome_ADT.MyView
         }
 
     }
-    public void addGH(GioHangModel gioHangModel) {
+    private String getMaUser() {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MyUser", Context.MODE_PRIVATE);
+        return sharedPreferences.getString("id", "");  // Lấy ID người dùng từ SharedPreferences
+    }
+
+    public void checkAndAddToCart(GioHangModel gioHangModel) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_Host.DOMAIN)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
         API_Host apiService = retrofit.create(API_Host.class);
-        Call<ArrayList<GioHangModel>> call = apiService.addGH(gioHangModel);
+
+        // Lấy giỏ hàng hiện tại của người dùng
+        Call<ArrayList<GioHangModel>> call = apiService.getGioHang(gioHangModel.getMaUser());
         call.enqueue(new Callback<ArrayList<GioHangModel>>() {
             @Override
             public void onResponse(Call<ArrayList<GioHangModel>> call, Response<ArrayList<GioHangModel>> response) {
-                if (response.isSuccessful()){
-                    Toast.makeText(context, "Thêm giỏ thành công", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful() && response.body() != null) {
+                    ArrayList<GioHangModel> gioHangList = response.body();
+                    boolean productExists = false;
+                    int existingProductIndex = -1;
+                    for (int i = 0; i < gioHangList.size(); i++) {
+                        GioHangModel item = gioHangList.get(i);
+                        if (item.getMaSP() != null && item.getMaSP().get_id() != null &&
+                                item.getMaSP().get_id().equals(gioHangModel.getMaSP().get_id())) {
+                            productExists = true;
+                            existingProductIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (productExists) {
+                        GioHangModel existingItem = gioHangList.get(existingProductIndex);
+                        int newQuantity = existingItem.getSoLuong() + gioHangModel.getSoLuong();
+                        existingItem.setSoLuong(newQuantity);
+
+                        updateGH(existingItem);
+                    } else {
+                        addGH(gioHangModel);
+                    }
                 } else {
-                    Toast.makeText(context, "Thêm giỏ không thành công", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Không thể lấy giỏ hàng", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ArrayList<GioHangModel>> call, Throwable t) {
-
+                Toast.makeText(context, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+    public void addGH(GioHangModel gioHangModel) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(API_Host.DOMAIN)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        API_Host apiService = retrofit.create(API_Host.class);
+        Call<GioHangModel> call = apiService.addGH(gioHangModel);
+
+        call.enqueue(new Callback<GioHangModel>() {
+            @Override
+            public void onResponse(Call<GioHangModel> call, Response<GioHangModel> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "Thêm giỏ hàng thành công", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("AddToCartError", "Response code: " + response.code() + ", Message: " + response.message());
+                    Toast.makeText(context, "Thêm giỏ hàng không thành công", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GioHangModel> call, Throwable t) {
+                Log.e("AddToCartError", t.getMessage(), t);
+                Toast.makeText(context, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void updateGH(GioHangModel gioHangModel) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(API_Host.DOMAIN)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        API_Host apiService = retrofit.create(API_Host.class);
+
+        Call<GioHangModel> call = apiService.updateGH(gioHangModel);
+        call.enqueue(new Callback<GioHangModel>() {
+            @Override
+            public void onResponse(Call<GioHangModel> call, Response<GioHangModel> response) {
+                if (response.isSuccessful()) {
+                    String message = "Cập nhật giỏ hàng thành công";
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                } else {
+                    String errorMessage = "Cập nhật giỏ hàng không thành công. Response code: " + response.code() + ", Message: " + response.message();
+                    Log.e("UpdateCartError", errorMessage);
+
+                   Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GioHangModel> call, Throwable t) {
+                // Xử lý lỗi kết nối khi không thể gửi yêu cầu
+                String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                Log.e("UpdateCartError", errorMessage, t);
+                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 
 }
