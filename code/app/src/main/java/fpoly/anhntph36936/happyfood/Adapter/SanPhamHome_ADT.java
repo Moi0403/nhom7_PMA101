@@ -76,12 +76,13 @@ public class SanPhamHome_ADT extends RecyclerView.Adapter<SanPhamHome_ADT.MyView
 
                 // Tạo đối tượng GioHangModel
                 GioHangModel gioHangModel = new GioHangModel();
-                gioHangModel.setMaUser(maUser);  // Đặt ID người dùng từ SharedPreferences
-                gioHangModel.setMaSP(model);  // Đặt ID sản phẩm từ model
-                gioHangModel.setSoLuong(1);  // Thiết lập số lượng sản phẩm mặc định là 1
-                gioHangModel.setTrangThaiMua(0);  // Thiết lập trạng thái mua (0: chưa mua)
+                gioHangModel.setMaUser(maUser);
+                gioHangModel.setMaSP(model);
+                gioHangModel.setGiaGH(model.getGiaSP());
+                gioHangModel.setSoLuong(1);
+                gioHangModel.setTrangThaiMua(0);
 
-               checkAndAddToCart(gioHangModel);
+               addGH(gioHangModel);
             }
         });
 
@@ -111,57 +112,8 @@ public class SanPhamHome_ADT extends RecyclerView.Adapter<SanPhamHome_ADT.MyView
     }
     private String getMaUser() {
         SharedPreferences sharedPreferences = context.getSharedPreferences("MyUser", Context.MODE_PRIVATE);
-        return sharedPreferences.getString("id", "");  // Lấy ID người dùng từ SharedPreferences
+        return sharedPreferences.getString("id", "");
     }
-
-    public void checkAndAddToCart(GioHangModel gioHangModel) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(API_Host.DOMAIN)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        API_Host apiService = retrofit.create(API_Host.class);
-
-        // Lấy giỏ hàng hiện tại của người dùng
-        Call<ArrayList<GioHangModel>> call = apiService.getGioHang(gioHangModel.getMaUser());
-        call.enqueue(new Callback<ArrayList<GioHangModel>>() {
-            @Override
-            public void onResponse(Call<ArrayList<GioHangModel>> call, Response<ArrayList<GioHangModel>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    ArrayList<GioHangModel> gioHangList = response.body();
-                    boolean productExists = false;
-                    int existingProductIndex = -1;
-                    for (int i = 0; i < gioHangList.size(); i++) {
-                        GioHangModel item = gioHangList.get(i);
-                        if (item.getMaSP() != null && item.getMaSP().get_id() != null &&
-                                item.getMaSP().get_id().equals(gioHangModel.getMaSP().get_id())) {
-                            productExists = true;
-                            existingProductIndex = i;
-                            break;
-                        }
-                    }
-
-                    if (productExists) {
-                        GioHangModel existingItem = gioHangList.get(existingProductIndex);
-                        int newQuantity = existingItem.getSoLuong() + gioHangModel.getSoLuong();
-                        existingItem.setSoLuong(newQuantity);
-
-                        updateGH(existingItem);
-                    } else {
-                        addGH(gioHangModel);
-                    }
-                } else {
-                    Toast.makeText(context, "Không thể lấy giỏ hàng", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ArrayList<GioHangModel>> call, Throwable t) {
-                Toast.makeText(context, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     public void addGH(GioHangModel gioHangModel) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_Host.DOMAIN)
@@ -190,38 +142,6 @@ public class SanPhamHome_ADT extends RecyclerView.Adapter<SanPhamHome_ADT.MyView
         });
     }
 
-    public void updateGH(GioHangModel gioHangModel) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(API_Host.DOMAIN)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        API_Host apiService = retrofit.create(API_Host.class);
-
-        Call<GioHangModel> call = apiService.updateGH(gioHangModel);
-        call.enqueue(new Callback<GioHangModel>() {
-            @Override
-            public void onResponse(Call<GioHangModel> call, Response<GioHangModel> response) {
-                if (response.isSuccessful()) {
-                    String message = "Cập nhật giỏ hàng thành công";
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                } else {
-                    String errorMessage = "Cập nhật giỏ hàng không thành công. Response code: " + response.code() + ", Message: " + response.message();
-                    Log.e("UpdateCartError", errorMessage);
-
-                   Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<GioHangModel> call, Throwable t) {
-                // Xử lý lỗi kết nối khi không thể gửi yêu cầu
-                String errorMessage = "Lỗi kết nối: " + t.getMessage();
-                Log.e("UpdateCartError", errorMessage, t);
-                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
 
 

@@ -187,7 +187,9 @@ router.post('/addGioHang', async (req, res) => {
             maUser: data.maUser,
             maSP: data.maSP,
             soLuong: data.soLuong,
+            giaGH: data.giaGH,
             trangThaiMua: data.trangThaiMua,
+            tongtien: data.tongtien,
         })
         const result = await newGH.save();
         if (result) {
@@ -253,46 +255,45 @@ router.delete('/del_gh/:id', async(req, res)=>{
     }
 });
 
-router.post('/updateGioHang', async (req, res) => {
+router.put('/up_gh/:id', async (req, res) => {
     try {
         await mongoose.connect(uri);
-        const data = req.body;
+        const gioHangId = req.params.id; 
+        const data = req.body; 
 
-        // Tìm sản phẩm trong giỏ hàng của người dùng với sản phẩm có ID đã có trong giỏ hàng hay không
-        const existingItem = await GioHangModel.findOne({
-            maUser: data.maUser,
-            'maSP._id': data.maSP._id
-        });
+       
+        const updatedGH = await GioHangModel.findByIdAndUpdate(
+            gioHangId,
+            {
+                $set: {
+                    maUser: data.maUser,
+                    maSP: data.maSP,
+                    soLuong: data.soLuong,
+                    giaGH: data.giaGH,
+                    trangThaiMua: data.trangThaiMua,
+                    tongtien: data.tongtien,
+                }
+            },
+            { new: true }
+        );
 
-        if (existingItem) {
-            // Nếu sản phẩm đã có trong giỏ hàng, cập nhật số lượng
-            existingItem.soLuong = data.soLuong;  // Cập nhật số lượng sản phẩm
-            await existingItem.save();  // Lưu thay đổi vào DB
-
-            return res.json({
+        if (updatedGH) {
+            res.json({
                 "status": 200,
-                "messenger": "Cập nhật giỏ hàng thành công",
-                "data": existingItem
+                "message": "Cập nhật thành công",
+                "data": updatedGH
             });
         } else {
-            // Nếu sản phẩm chưa có trong giỏ hàng, thêm mới sản phẩm vào giỏ hàng
-            const newGH = new GioHangModel({
-                maUser: data.maUser,
-                maSP: data.maSP,
-                soLuong: data.soLuong,
-                trangThaiMua: data.trangThaiMua,
-            });
-            const result = await newGH.save();  // Lưu giỏ hàng mới vào DB
-
-            return res.json({
-                "status": 200,
-                "messenger": "Thêm giỏ hàng thành công",
-                "data": result
+            res.json({
+                "status": 400,
+                "message": "Không tìm thấy giỏ hàng để cập nhật",
+                "data": []
             });
         }
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
 });
+
 
 

@@ -17,7 +17,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface API_Host {
-    String DOMAIN = "http://192.168.14.101:3000/";
+    String DOMAIN = "http://192.168.101.16:3000/";
 
     @POST("/api/dangnhap")
     Call<APIResponse> DangNhap(@Body DangNhapRequest response);
@@ -53,7 +53,9 @@ public interface API_Host {
     Call<GioHangModel> addGH(@Body GioHangModel gioHangModel);
 
     @DELETE("/api/del_gh/{id}")
-    Call<ArrayList<GioHangModel>> del_gh(@Path("id") String id);
-    @POST("/updateGioHang")
-    Call<GioHangModel> updateGH(@Body GioHangModel gioHangModel);
+    Call<GioHangModel> del_gh(@Path("id") String id);
+
+    @PUT("api/up_gh/{id}")
+    Call<ArrayList<GioHangModel>> up_gh(@Path("id") String id, @Body GioHangModel gioHangModel);
+
 }

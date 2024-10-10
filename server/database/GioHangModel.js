@@ -16,7 +16,15 @@ const GioHangSchema = new mongoose.Schema({
         require: true,
         min: 1
     },
+    giaGH:{
+        type: Number,
+        require: true,
+    },
     trangThaiMua: {
+        type: Number,
+        require: true
+    },
+    tongtien: {
         type: Number,
         require: true
     }

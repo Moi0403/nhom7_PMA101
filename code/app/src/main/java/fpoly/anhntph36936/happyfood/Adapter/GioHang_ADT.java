@@ -21,6 +21,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import fpoly.anhntph36936.happyfood.API.API_Host;
+import fpoly.anhntph36936.happyfood.Frag_User.Frag_GioHang;
 import fpoly.anhntph36936.happyfood.Model.GioHangModel;
 import fpoly.anhntph36936.happyfood.Model.SanPhamModel;
 import fpoly.anhntph36936.happyfood.Model.UserModel;
@@ -34,11 +35,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
     Context context;
     ArrayList<GioHangModel> list_gh;
+    private int totalPrice = 0;
+    private Frag_GioHang frag;
+    int price;
 
-    public GioHang_ADT(Context context, ArrayList<GioHangModel> list_gh) {
+    public GioHang_ADT(Context context, ArrayList<GioHangModel> list_gh, Frag_GioHang frag) {
         this.context = context;
         this.list_gh = list_gh;
+        this.frag = frag;
     }
+
 
     @NonNull
     @Override
@@ -50,19 +56,81 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         GioHangModel gioHangModel = list_gh.get(position);
-
-        // Kiểm tra nếu maSP là đối tượng và lấy thông tin từ đó
-        SanPhamModel spModel = gioHangModel.getMaSP();  // Lấy đối tượng SPModel từ GioHangModel
+        SanPhamModel spModel = gioHangModel.getMaSP();
 
         if (spModel != null) {
-            // Gọi API để lấy thông tin sản phẩm
-            getProductDetails(spModel.get_id(), holder);  // Truyền id của sản phẩm từ SPModel
-
-            // Hiển thị số lượng mua và trạng thái checkbox
+            getProductDetails(spModel.get_id(), holder);
             holder.tvSo_luong_mua.setText(String.valueOf(gioHangModel.getSoLuong()));
-            holder.ckbMua_hang.setChecked(gioHangModel.getTrangThaiMua() == 1);
+            holder.tvGia_san_pham.setText(gioHangModel.getGiaGH() + ".000đ");
+
+
+            holder.ckbMua_hang.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (frag == null || frag.tvTotal == null) return;
+                    String totalText = frag.tvTotal.getText().toString().replace(".000", "");
+                    int currentTotal = Integer.parseInt(totalText.isEmpty() ? "0" : totalText);
+                    int giaSanPham = gioHangModel.getGiaGH();
+
+                    if (holder.ckbMua_hang.isChecked()) {
+
+                        gioHangModel.setTrangThaiMua(1);
+                        currentTotal += giaSanPham;
+                    } else {
+                        gioHangModel.setTrangThaiMua(0);
+                        currentTotal -= giaSanPham;
+                    }
+
+                    frag.tvTotal.setText(currentTotal + ".000");
+                }
+            });
+
+
+
+            holder.imgMinus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int soLuongHienTai = gioHangModel.getSoLuong();
+                    if (soLuongHienTai > 1) {
+                        gioHangModel.setSoLuong(soLuongHienTai - 1);
+                        int giaSanPham = spModel.getGiaSP();
+                        gioHangModel.setGiaGH(giaSanPham * gioHangModel.getSoLuong());
+                        holder.tvSo_luong_mua.setText(String.valueOf(gioHangModel.getSoLuong()));
+                        holder.tvGia_san_pham.setText(gioHangModel.getGiaGH() + ".000đ");
+                        updateSoLuong(gioHangModel);
+                        if (holder.ckbMua_hang.isChecked()) {
+                            String totalText = frag.tvTotal.getText().toString().replace(".000", "");
+                            int currentTotal = Integer.parseInt(totalText.isEmpty() ? "0" : totalText);
+                            currentTotal -= giaSanPham;
+                            frag.tvTotal.setText(currentTotal + ".000");
+                        }
+                    }
+                }
+            });
+
+
+            holder.imgPlus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int soLuongHienTai = gioHangModel.getSoLuong();
+                    gioHangModel.setSoLuong(soLuongHienTai + 1);
+                    int giaSanPham = spModel.getGiaSP();
+                    gioHangModel.setGiaGH(giaSanPham * gioHangModel.getSoLuong());
+                    holder.tvGia_san_pham.setText(gioHangModel.getGiaGH() + ".000đ");
+                    holder.tvSo_luong_mua.setText(String.valueOf(gioHangModel.getSoLuong()));
+                    updateSoLuong(gioHangModel);
+                    if (holder.ckbMua_hang.isChecked()) {
+                        String totalText = frag.tvTotal.getText().toString().replace(".000", "");
+                        int currentTotal = Integer.parseInt(totalText.isEmpty() ? "0" : totalText);
+                        currentTotal += giaSanPham;
+                        frag.tvTotal.setText(currentTotal + ".000");
+                    }
+                }
+            });
+
+
+
         } else {
-            // Nếu không có thông tin sản phẩm, có thể hiển thị lỗi hoặc ẩn đi
             Log.e("GioHang_ADT", "Sản phẩm không hợp lệ hoặc không có maSP.");
         }
         holder.imgCancel.setOnClickListener(new View.OnClickListener() {
@@ -107,7 +175,6 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
                 if (response.isSuccessful() && response.body() != null) {
                     SanPhamModel sanPham = response.body();
                     holder.tvTen_san_pham.setText(sanPham.getTenSP());
-                    holder.tvGia_san_pham.setText(sanPham.getGiaSP() + ".000đ");
                     Picasso.get().load(sanPham.getAnhSP()).into(holder.imgAnh_san_pham);
                 } else {
                     Log.e("GioHang_ADT", "Error fetching product data: " + response.message());
@@ -136,10 +203,10 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();
                     API_Host apiService = retrofit.create(API_Host.class);
-                    Call<ArrayList<GioHangModel>> call = apiService.del_gh(gioHangModel.get_id());
-                    call.enqueue(new Callback<ArrayList<GioHangModel>>() {
+                    Call<GioHangModel> call = apiService.del_gh(gioHangModel.get_id());
+                    call.enqueue(new Callback<GioHangModel>() {
                         @Override
-                        public void onResponse(Call<ArrayList<GioHangModel>> call, Response<ArrayList<GioHangModel>> response) {
+                        public void onResponse(Call<GioHangModel> call, Response<GioHangModel> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
                                 list_gh.remove(position);
@@ -153,7 +220,7 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
                         }
 
                         @Override
-                        public void onFailure(Call<ArrayList<GioHangModel>> call, Throwable t) {
+                        public void onFailure(Call<GioHangModel> call, Throwable t) {
 
                         }
                     });
@@ -167,5 +234,29 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
         builder.show();
     }
 
+    private void updateSoLuong(GioHangModel gioHangModel) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(API_Host.DOMAIN)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        API_Host apiHost = retrofit.create(API_Host.class);
+        Call<ArrayList<GioHangModel>> call = apiHost.up_gh(gioHangModel.get_id(), gioHangModel);
+        call.enqueue(new Callback<ArrayList<GioHangModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<GioHangModel>> call, Response<ArrayList<GioHangModel>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
+                    Log.e("GioHang_ADT", "Error: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<GioHangModel>> call, Throwable t) {
+
+            }
+        });
+    }
 
 }

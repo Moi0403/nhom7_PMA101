@@ -41,6 +41,8 @@ public class Frag_GioHang extends Fragment {
     String maUser;
     GioHang_ADT gioHangAdt;
     ImageView imgBack;
+    public TextView tvTotal;
+    int totalPrice = 0;
     public Button btnMua_hang;
 
     ArrayList<GioHangModel> list = new ArrayList<>();
@@ -49,13 +51,14 @@ public class Frag_GioHang extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_giohang, container, false);
         recyclerView = view.findViewById(R.id.recycler_view_gio_hang);
+        tvTotal = view.findViewById(R.id.tvTotal);
 
         maUser = getMaUser();
 
         if (TextUtils.isEmpty(maUser)) {
             Toast.makeText(getContext(), "Vui lòng đăng nhập để xem giỏ hàng", Toast.LENGTH_SHORT).show();
         } else {
-            getGH(maUser); // Pass maUser to the getGH method
+            getGH(maUser);
         }
         return view;
     }
@@ -75,18 +78,14 @@ public class Frag_GioHang extends Fragment {
             @Override
             public void onResponse(Call<ArrayList<GioHangModel>> call, Response<ArrayList<GioHangModel>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    list = response.body();  // Lưu danh sách giỏ hàng
-
-                    // Kiểm tra nếu giỏ hàng không rỗng
+                    list = response.body();
                     if (list.isEmpty()) {
                         Toast.makeText(getContext(), "Giỏ hàng của bạn hiện tại đang trống.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        gioHangAdt = new GioHang_ADT(getContext(), list, Frag_GioHang.this);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                        recyclerView.setAdapter(gioHangAdt);
                     }
-
-                    // Cài đặt adapter để hiển thị giỏ hàng lên RecyclerView
-                    gioHangAdt = new GioHang_ADT(getContext(), list);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                    recyclerView.setAdapter(gioHangAdt);
-
                 }
             }
 
@@ -97,4 +96,6 @@ public class Frag_GioHang extends Fragment {
             }
         });
     }
+
+
 }
