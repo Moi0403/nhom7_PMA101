@@ -8,9 +8,12 @@ const COMMON = require('./database/COMMON');
 const SanPhamModel = require('./database/SanPhamModel');
 const UserModel = require('./database/UserModel');
 const GioHangModel = require('./database/GioHangModel');
+const HoaDonModel = require('./database/HoaDonModel');
+
 const uri = COMMON.uri;
 
 const bodyParser = require('body-parser');
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 
@@ -171,10 +174,47 @@ router.delete('/del_user/:id', async (req, res)=>{
     }
 });
 
+router.put('/up_user/:id', async (req, res)=>{
+    try {
+        const id = req.params.id;
+        const data = req.body;
+
+        await mongoose.connect(uri);
+        console.log('Kết nối DB thành công');
+
+        const result = await UserModel.findByIdAndUpdate(id, data);
+
+        if (result) {
+            let products = await UserModel.find();
+            console.log(products);
+            res.send(products);
+        } else {
+            res.send('Không tìm thấy sản phẩm để cập nhật');
+        }
+    } catch (error) {
+        console.error('Lỗi khi cập nhật:', error);
+        res.send('Lỗi khi cập nhật');
+    }
+});
+
 router.get('/list_user', async (req, res)=>{
     await mongoose.connect(uri);
     let data = await UserModel.find();
     res.send(data);
+});
+router.get('/list_user/:id', async(req, res)=>{
+    try {
+        await mongoose.connect(uri);
+        let id = req.params.id;
+        const sanpham = await UserModel.findById(id);
+        if (!sanpham) {
+            return res.status(404).send('Sản phẩm không tồn tại');
+        }
+        res.send(sanpham);
+    } catch (error) {
+        console.error('Error fetching product by ID:', error);
+        res.status(500).send('Lỗi máy chủ');
+    }
 });
 
 
@@ -204,7 +244,6 @@ router.post('/addGioHang', async (req, res) => {
                 "messenger": "Thêm không thành công",
                 "data": []
             })
-
         }
         
     } catch (error) {
@@ -215,7 +254,8 @@ router.post('/addGioHang', async (req, res) => {
 router.get('/list_gh/:id', async (req, res) => {
     const { id } = req.params;
   
-    // Validate ID
+    console.log("Received ID from Android:", id); // Thêm log để kiểm tra ID nhận được
+  
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid ID' });
     }
@@ -237,6 +277,7 @@ router.get('/list_gh/:id', async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+  
 
 router.delete('/del_gh/:id', async(req, res)=>{
     try {
@@ -294,6 +335,115 @@ router.put('/up_gh/:id', async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 });
+
+router.post('/add_hd', async (req, res) => {
+    try {
+        const { maUser, maSP, maGH, ngayMua, tongTien, diaChi, trangThaiDH } = req.body;
+
+        // Kiểm tra xem tất cả các trường có được gửi đầy đủ không
+        if (!maUser || !maSP || !maGH || !ngayMua || !tongTien || !diaChi || !trangThaiDH) {
+            return res.status(400).json({
+                success: false,
+                message: 'Thiếu thông tin để thêm hóa đơn'
+            });
+        }
+
+        // Kiểm tra maSP có phải là mảng không
+        if (!Array.isArray(maSP)) {
+            return res.status(400).json({
+                success: false,
+                message: 'maSP phải là mảng các ID sản phẩm'
+            });
+        }
+
+        // Tạo mảng chứa ObjectId từ maSP (lấy mỗi phần tử làm ObjectId)
+        let maSP_ObjectId = [];
+        for (let id of maSP) {
+            try {
+                // Kiểm tra xem mỗi ID có hợp lệ không trước khi chuyển thành ObjectId
+                const objectId = new mongoose.Types.ObjectId(id);
+                maSP_ObjectId.push(objectId); // Thêm ObjectId hợp lệ vào mảng
+            } catch (error) {
+                // Nếu không hợp lệ, log chi tiết lỗi và trả về phản hồi với ID không hợp lệ
+                console.error(`ID sản phẩm không hợp lệ: ${id}`);
+                return res.status(400).json({
+                    success: false,
+                    message: `ID sản phẩm không hợp lệ: ${id}`
+                });
+            }
+        }
+
+        const newHoaDon = new HoaDonModel({
+            maUser,
+            maSP: maSP_ObjectId,  // Đưa mảng maSP đã chuyển thành ObjectId vào đây
+            maGH,
+            ngayMua,
+            tongTien,
+            diaChi,
+            trangThaiDH
+        });
+
+        // Lưu vào database
+        await newHoaDon.save();
+
+        // Trả về kết quả thành công
+        return res.status(201).json({
+            success: true,
+            message: 'Thêm hóa đơn thành công',
+            data: newHoaDon
+        });
+    } catch (error) {
+        console.error('Lỗi khi thêm hóa đơn: ', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi thêm hóa đơn'
+        });
+    }
+});
+
+
+
+
+router.get('/get_hd/:maUser', async (req, res) => {
+    try {
+        // Lấy maUser từ tham số URL
+        const { maUser } = req.params;
+
+        // Kiểm tra xem maUser có tồn tại không
+        if (!maUser) {
+            return res.status(400).json({
+                success: false,
+                message: 'Thiếu maUser để tìm hóa đơn'
+            });
+        }
+
+        // Tìm tất cả các hóa đơn của maUser trong cơ sở dữ liệu
+        const hoaDons = await HoaDonModel.find({ maUser }).populate('maSP');
+
+        // Nếu không có hóa đơn nào
+        if (hoaDons.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy hóa đơn nào cho người dùng này'
+            });
+        }
+
+        // Trả về danh sách hóa đơn
+        return res.status(200).json({
+            success: true,
+            message: 'Lấy hóa đơn thành công',
+            data: hoaDons
+        });
+    } catch (error) {
+        console.error('Lỗi khi lấy hóa đơn: ', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi lấy hóa đơn'
+        });
+    }
+});
+
+
 
 
 

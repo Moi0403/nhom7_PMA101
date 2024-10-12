@@ -38,8 +38,7 @@ public class Main_ChiTietSP extends AppCompatActivity {
         tv_TL = findViewById(R.id.tvTL_sanpham_chitiet);
         tv_MT = findViewById(R.id.tvMT_sanpham_chitiet);
 
-        idSP = getIntent().getStringExtra("idSP");
-        getSP(idSP);
+
 
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override

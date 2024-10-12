@@ -16,6 +16,9 @@
         android:theme="@style/Theme.HappyFood"
         tools:targetApi="31">
         <activity
+            android:name=".Main.Main_DH"
+            android:exported="false" />
+        <activity
             android:name=".Main.Main_ChiTietSP"
             android:exported="false" />
         <activity

@@ -1,5 +1,6 @@
 package fpoly.anhntph36936.happyfood.Adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -16,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -54,39 +57,32 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         GioHangModel gioHangModel = list_gh.get(position);
         SanPhamModel spModel = gioHangModel.getMaSP();
 
         if (spModel != null) {
+
             getProductDetails(spModel.get_id(), holder);
             holder.tvSo_luong_mua.setText(String.valueOf(gioHangModel.getSoLuong()));
             holder.tvGia_san_pham.setText(gioHangModel.getGiaGH() + ".000đ");
 
+            holder.ckbMua_hang.setChecked(gioHangModel.getTrangThaiMua() == 1);
+            updateTotalPrice();
 
             holder.ckbMua_hang.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (frag == null || frag.tvTotal == null) return;
-                    String totalText = frag.tvTotal.getText().toString().replace(".000", "");
-                    int currentTotal = Integer.parseInt(totalText.isEmpty() ? "0" : totalText);
                     int giaSanPham = gioHangModel.getGiaGH();
-
                     if (holder.ckbMua_hang.isChecked()) {
-
                         gioHangModel.setTrangThaiMua(1);
-                        currentTotal += giaSanPham;
                     } else {
                         gioHangModel.setTrangThaiMua(0);
-                        currentTotal -= giaSanPham;
                     }
-
-                    frag.tvTotal.setText(currentTotal + ".000");
+                    updateTotalPrice();
+                    updateSoLuong(gioHangModel);
                 }
             });
-
-
-
             holder.imgMinus.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -98,16 +94,10 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
                         holder.tvSo_luong_mua.setText(String.valueOf(gioHangModel.getSoLuong()));
                         holder.tvGia_san_pham.setText(gioHangModel.getGiaGH() + ".000đ");
                         updateSoLuong(gioHangModel);
-                        if (holder.ckbMua_hang.isChecked()) {
-                            String totalText = frag.tvTotal.getText().toString().replace(".000", "");
-                            int currentTotal = Integer.parseInt(totalText.isEmpty() ? "0" : totalText);
-                            currentTotal -= giaSanPham;
-                            frag.tvTotal.setText(currentTotal + ".000");
-                        }
+                        updateTotalPrice();
                     }
                 }
             });
-
 
             holder.imgPlus.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -119,20 +109,13 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
                     holder.tvGia_san_pham.setText(gioHangModel.getGiaGH() + ".000đ");
                     holder.tvSo_luong_mua.setText(String.valueOf(gioHangModel.getSoLuong()));
                     updateSoLuong(gioHangModel);
-                    if (holder.ckbMua_hang.isChecked()) {
-                        String totalText = frag.tvTotal.getText().toString().replace(".000", "");
-                        int currentTotal = Integer.parseInt(totalText.isEmpty() ? "0" : totalText);
-                        currentTotal += giaSanPham;
-                        frag.tvTotal.setText(currentTotal + ".000");
-                    }
+                    updateTotalPrice();
                 }
             });
-
-
-
         } else {
             Log.e("GioHang_ADT", "Sản phẩm không hợp lệ hoặc không có maSP.");
         }
+        // Xử lý xóa sản phẩm trong giỏ hàng
         holder.imgCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,6 +123,7 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
             }
         });
     }
+
 
     @Override
     public int getItemCount() {
@@ -258,5 +242,19 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
             }
         });
     }
+
+    private void updateTotalPrice() {
+        int total = 0;
+        for (GioHangModel item : list_gh) {
+            if (item.getTrangThaiMua() == 1) {
+                total += item.getGiaGH();
+            }
+        }
+        frag.tvTotal.setText(total + ".000");
+    }
+
+
+
+
 
 }

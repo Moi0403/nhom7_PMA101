@@ -54,7 +54,7 @@ public class Main_Dangki extends AppCompatActivity {
                     Toast.makeText(Main_Dangki.this, "Vui lòng không để trống", Toast.LENGTH_SHORT).show();
                 } else {
                     UserModel model = new UserModel();
-                    model.setPhone(Integer.parseInt(sdt));
+                    model.setPhone(sdt);
                     model.setUsername(user);
                     model.setPassword(pass);
                     model.setAddress("");
@@ -73,6 +73,7 @@ public class Main_Dangki extends AppCompatActivity {
                             if(response.isSuccessful()){
                                 ArrayList<UserModel> list = response.body();
                                 Toast.makeText(Main_Dangki.this, "Đăng kí thành công", Toast.LENGTH_SHORT).show();
+                                finish();
                             } else {
                                 Toast.makeText(Main_Dangki.this, "Đăng kí thành công", Toast.LENGTH_SHORT).show();
                             }

@@ -1,10 +1,9 @@
 package fpoly.anhntph36936.happyfood.API;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 import fpoly.anhntph36936.happyfood.Model.GioHangModel;
+import fpoly.anhntph36936.happyfood.Model.HoaDonModel;
 import fpoly.anhntph36936.happyfood.Model.SanPhamModel;
 import fpoly.anhntph36936.happyfood.Model.UserModel;
 import retrofit2.Call;
@@ -14,7 +13,6 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 public interface API_Host {
     String DOMAIN = "http://192.168.101.16:3000/";
@@ -30,6 +28,12 @@ public interface API_Host {
 
     @GET("/api/list_user")
     Call<ArrayList<UserModel>> ListUser();
+
+    @GET("/api/list_user/{id}")
+    Call<UserModel> getUser(@Path("id") String id);
+
+    @PUT("/api/up_user/{id}")
+    Call<ArrayList<UserModel>> up_user(@Path("id") String id, @Body UserModel model);
 
     @GET("/api/list_sp")
     Call<ArrayList<SanPhamModel>> ListSP();
@@ -57,5 +61,17 @@ public interface API_Host {
 
     @PUT("api/up_gh/{id}")
     Call<ArrayList<GioHangModel>> up_gh(@Path("id") String id, @Body GioHangModel gioHangModel);
+
+    @GET("/api/list_hd")
+    Call<ArrayList<HoaDonModel>> getHD();
+
+    @POST("/api/add_hd")
+    Call<HoaDonModel> addHoaDon(@Body HoaDonModel model);
+
+    @GET("/api/get_hd/{maUser}")
+    Call<HoaDonResponse> getHoaDonByUser(@Path("maUser") String maUser);
+
+
+
 
 }
