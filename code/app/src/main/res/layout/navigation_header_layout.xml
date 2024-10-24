@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="160dp"
     android:background="#F1E7E8"
-    android:gravity="center_vertical"
+    android:gravity="center"
     android:orientation="vertical">
 
     <ImageView
@@ -12,44 +12,22 @@
         android:layout_width="90dp"
         android:layout_height="90dp"
         android:padding="5dp"
-        android:src="@drawable/avatar_mac_dinh" />
+        android:src="@drawable/user" />
 
-    <LinearLayout
-        android:id="@+id/linear_header"
-        android:layout_width="220dp"
-        android:padding="5dp"
+    <TextView
+        android:id="@+id/tvName_header"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/imgAvatar_header"
-        android:orientation="vertical">
+        android:text="Welcome Admin"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/tvName_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Nguyen Van A"
-            android:textSize="20sp"
-            android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/tvPhoneNumber_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:text="0123456789"/>
 
-        <TextView
-            android:id="@+id/tvEmail_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="nguyenvana@gmail.com"
-            android:layout_marginTop="3dp"
-            android:textColor="#5C6BA0"/>
-    </LinearLayout>
-    <ImageView
-        android:id="@+id/imgMuiTen_header"
-        android:layout_toRightOf="@+id/linear_header"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginTop="25dp"
-        android:src="@drawable/header_mui_ten"/>
-</RelativeLayout>
+
+
+
+
+
+</LinearLayout>

@@ -8,7 +8,7 @@ const COMMON = require('./database/COMMON');
 const SanPhamModel = require('./database/SanPhamModel');
 const UserModel = require('./database/UserModel');
 const GioHangModel = require('./database/GioHangModel');
-const HoaDonModel = require('./database/HoaDonModel');
+const ThanhToanModel = require('./database/ThanhToanModel');
 
 const uri = COMMON.uri;
 
@@ -218,7 +218,6 @@ router.get('/list_user/:id', async(req, res)=>{
 });
 
 
-
 router.post('/addGioHang', async (req, res) => {
     try {
         await mongoose.connect(uri);
@@ -336,110 +335,48 @@ router.put('/up_gh/:id', async (req, res) => {
     }
 });
 
-router.post('/add_hd', async (req, res) => {
+router.post('/add_tt', async (req, res) => {
     try {
-        const { maUser, maSP, maGH, ngayMua, tongTien, diaChi, trangThaiDH } = req.body;
+        const { maUser, tenSP, anhSP, giaSP, soLuong, trangthaiTT } = req.body;
 
-        // Kiểm tra xem tất cả các trường có được gửi đầy đủ không
-        if (!maUser || !maSP || !maGH || !ngayMua || !tongTien || !diaChi || !trangThaiDH) {
-            return res.status(400).json({
-                success: false,
-                message: 'Thiếu thông tin để thêm hóa đơn'
-            });
+        if (!maUser || !tenSP || !anhSP || !giaSP || !soLuong || !trangthaiTT) {
+            return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' });
         }
 
-        // Kiểm tra maSP có phải là mảng không
-        if (!Array.isArray(maSP)) {
-            return res.status(400).json({
-                success: false,
-                message: 'maSP phải là mảng các ID sản phẩm'
-            });
-        }
-
-        // Tạo mảng chứa ObjectId từ maSP (lấy mỗi phần tử làm ObjectId)
-        let maSP_ObjectId = [];
-        for (let id of maSP) {
-            try {
-                // Kiểm tra xem mỗi ID có hợp lệ không trước khi chuyển thành ObjectId
-                const objectId = new mongoose.Types.ObjectId(id);
-                maSP_ObjectId.push(objectId); // Thêm ObjectId hợp lệ vào mảng
-            } catch (error) {
-                // Nếu không hợp lệ, log chi tiết lỗi và trả về phản hồi với ID không hợp lệ
-                console.error(`ID sản phẩm không hợp lệ: ${id}`);
-                return res.status(400).json({
-                    success: false,
-                    message: `ID sản phẩm không hợp lệ: ${id}`
-                });
-            }
-        }
-
-        const newHoaDon = new HoaDonModel({
+        const thanhToanMoi = new ThanhToanModel({
             maUser,
-            maSP: maSP_ObjectId,  // Đưa mảng maSP đã chuyển thành ObjectId vào đây
-            maGH,
-            ngayMua,
-            tongTien,
-            diaChi,
-            trangThaiDH
+            tenSP,
+            anhSP,
+            giaSP,
+            soLuong,
+            trangthaiTT
         });
 
-        // Lưu vào database
-        await newHoaDon.save();
-
-        // Trả về kết quả thành công
-        return res.status(201).json({
-            success: true,
-            message: 'Thêm hóa đơn thành công',
-            data: newHoaDon
-        });
+        await thanhToanMoi.save();
+        res.status(201).json({ message: 'Thanh toán đã được thêm thành công', thanhToan: thanhToanMoi });
     } catch (error) {
-        console.error('Lỗi khi thêm hóa đơn: ', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Lỗi server khi thêm hóa đơn'
-        });
+        console.error('Lỗi khi thêm thanh toán:', error);
+        res.status(500).json({ message: 'Đã xảy ra lỗi khi thêm thanh toán', error: error.message });
     }
 });
-
-
-
-
-router.get('/get_hd/:maUser', async (req, res) => {
+router.get('/thanhtoan/:maUser', async (req, res) => {
     try {
-        // Lấy maUser từ tham số URL
+        // Lấy _id của người dùng từ URL params
         const { maUser } = req.params;
 
-        // Kiểm tra xem maUser có tồn tại không
-        if (!maUser) {
-            return res.status(400).json({
-                success: false,
-                message: 'Thiếu maUser để tìm hóa đơn'
-            });
+        // Tìm tất cả các thanh toán của người dùng dựa trên maUser (_id)
+        const thanhToanList = await ThanhToanModel.find({ maUser });
+
+        // Kiểm tra nếu không có dữ liệu thanh toán nào
+        if (thanhToanList.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy thanh toán cho người dùng này' });
         }
 
-        // Tìm tất cả các hóa đơn của maUser trong cơ sở dữ liệu
-        const hoaDons = await HoaDonModel.find({ maUser }).populate('maSP');
-
-        // Nếu không có hóa đơn nào
-        if (hoaDons.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Không tìm thấy hóa đơn nào cho người dùng này'
-            });
-        }
-
-        // Trả về danh sách hóa đơn
-        return res.status(200).json({
-            success: true,
-            message: 'Lấy hóa đơn thành công',
-            data: hoaDons
-        });
+        // Trả về danh sách thanh toán
+        res.status(200).json(thanhToanList);
     } catch (error) {
-        console.error('Lỗi khi lấy hóa đơn: ', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Lỗi server khi lấy hóa đơn'
-        });
+        console.error('Lỗi khi lấy thanh toán:', error);
+        res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy thanh toán', error: error.message });
     }
 });
 

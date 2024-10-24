@@ -17,6 +17,8 @@ import android.view.View;
 
 import com.google.android.material.navigation.NavigationView;
 
+import fpoly.anhntph36936.happyfood.Frag_ADM.QL_DonHang_ADM;
+import fpoly.anhntph36936.happyfood.Frag_ADM.QL_ThongKe_ADM;
 import fpoly.anhntph36936.happyfood.Frag_ADM.QL_User_ADM;
 import fpoly.anhntph36936.happyfood.Frag_User.Frag_Home;
 import fpoly.anhntph36936.happyfood.Frag_ADM.QL_SP_ADM;
@@ -73,9 +75,15 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.menu_ql_sanpham){
                 fragment = new QL_SP_ADM();
                 title = "Quản lý sản phẩm";
-            } else if (itemId == R.id.menu_ql_nguoidung){
+            } else if (itemId == R.id.menu_ql_nguoidung) {
                 fragment = new QL_User_ADM();
                 title = "Quản lý người dùng";
+            } else if (itemId == R.id.menu_ql_doanhthu) {
+                fragment = new QL_ThongKe_ADM();
+                title = "Doanh thu";
+            } else if (itemId == R.id.menu_ql_donhang) {
+                fragment = new QL_DonHang_ADM();
+                title = "Quản lý đơn hàng";
             } else if (itemId == R.id.menu_nd_exit) {
                 showExit();
                 return true;

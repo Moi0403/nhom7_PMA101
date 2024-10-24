@@ -25,8 +25,10 @@ import java.util.ArrayList;
 
 import fpoly.anhntph36936.happyfood.API.API_Host;
 import fpoly.anhntph36936.happyfood.Frag_User.Frag_GioHang;
+import fpoly.anhntph36936.happyfood.Interface.OnPaymentListener;
 import fpoly.anhntph36936.happyfood.Model.GioHangModel;
 import fpoly.anhntph36936.happyfood.Model.SanPhamModel;
+import fpoly.anhntph36936.happyfood.Model.ThanhToanModel;
 import fpoly.anhntph36936.happyfood.Model.UserModel;
 import fpoly.anhntph36936.happyfood.R;
 import retrofit2.Call;
@@ -41,11 +43,15 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
     private int totalPrice = 0;
     private Frag_GioHang frag;
     int price;
+    private OnPaymentListener paymentListener;
 
     public GioHang_ADT(Context context, ArrayList<GioHangModel> list_gh, Frag_GioHang frag) {
         this.context = context;
         this.list_gh = list_gh;
         this.frag = frag;
+    }
+    public void setOnPaymentListener(OnPaymentListener listener) {
+        this.paymentListener = listener;
     }
 
 
@@ -73,9 +79,14 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
             holder.ckbMua_hang.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int giaSanPham = gioHangModel.getGiaGH();
                     if (holder.ckbMua_hang.isChecked()) {
                         gioHangModel.setTrangThaiMua(1);
+                        String anhSp = gioHangModel.getMaSP().getAnhSP();
+                        String tenSp = gioHangModel.getMaSP().getTenSP();
+                        int giaSanPham = gioHangModel.getGiaGH();
+                        int sluong = gioHangModel.getSoLuong();
+                        int ttTT = 0;
+
                     } else {
                         gioHangModel.setTrangThaiMua(0);
                     }
@@ -145,6 +156,10 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
             imgCancel = itemView.findViewById(R.id.imgCancel);
             ckbMua_hang = itemView.findViewById(R.id.ckbMua_hang);
         }
+    }
+    private String getMaUser() {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MyUser", Context.MODE_PRIVATE);
+        return sharedPreferences.getString("id", "");
     }
     private void getProductDetails(String maSP, ViewHolder holder) {
         Retrofit retrofit = new Retrofit.Builder()
@@ -253,7 +268,33 @@ public class GioHang_ADT extends RecyclerView.Adapter<GioHang_ADT.ViewHolder> {
         frag.tvTotal.setText(total + ".000");
     }
 
+    private void addThanhToan(ThanhToanModel model) {
+        if (paymentListener != null) {
+            paymentListener.onPaymentRequested(model); // Gọi listener
+        } else {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(API_Host.DOMAIN)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            API_Host apiHost = retrofit.create(API_Host.class);
+            Call<ThanhToanModel> call = apiHost.addThanhToan(model);
+            call.enqueue(new Callback<ThanhToanModel>() {
+                @Override
+                public void onResponse(Call<ThanhToanModel> call, Response<ThanhToanModel> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(context, "Thanh toán thành công ", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Thanh toán thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                }
 
+                @Override
+                public void onFailure(Call<ThanhToanModel> call, Throwable t) {
+                    Toast.makeText(context, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
 
 
 

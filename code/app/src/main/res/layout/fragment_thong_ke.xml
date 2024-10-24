@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:orientation="vertical">
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="10dp"
+          android:orientation="vertical">
+
+         <TextView
+             android:id="@+id/tvtile"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:gravity="center"
+             android:text="Tổng tiền đã mua: "
+             android:textSize="24sp"
+             android:textStyle="bold" />
+
+         <TextView
+             android:id="@+id/tvTong_tien"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="0"
+             android:textSize="24sp"
+             android:textStyle="bold" />
+
+      </LinearLayout>
+
+      <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="10dp"
+          android:text="Chọn khoảng thời gian để có thông tin chi tiết hơn"
+          android:textSize="20sp"
+          android:textStyle="bold" />
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="10dp"
+          android:orientation="horizontal">
+
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Từ ngày: "
+             android:textSize="20sp"
+             android:textStyle="bold" />
+
+         <EditText
+             android:id="@+id/edTu_ngay"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:clickable="false"
+             android:cursorVisible="false"
+             android:focusable="false"
+             android:focusableInTouchMode="false"
+             android:gravity="center"
+             android:hint="nhấn để chọn ngày" />
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="10dp"
+          android:orientation="horizontal">
+
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Đến ngày: "
+             android:textSize="20sp"
+             android:textStyle="bold" />
+
+         <EditText
+             android:id="@+id/edDen_ngay"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:clickable="false"
+             android:cursorVisible="false"
+             android:focusable="false"
+             android:focusableInTouchMode="false"
+             android:gravity="center"
+             android:hint="nhấn để chọn ngày" />
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:id="@+id/linear"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="10dp"
+          android:orientation="horizontal"
+          android:visibility="gone">
+
+         <TextView
+             android:id="@+id/tvTu_ngay"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="2023-03-03 "
+             android:textSize="20sp"
+             android:textStyle="bold" />
+
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text=" -> "
+             android:textSize="20sp"
+             android:textStyle="bold" />
+
+         <TextView
+             android:id="@+id/tvDen_ngay"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="2023-03-03 "
+             android:textSize="20sp"
+             android:textStyle="bold" />
+
+         <TextView
+             android:id="@+id/tvSo_tien_trong_khoang"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:gravity="center"
+             android:hint="0"
+             android:textSize="20sp" />
+
+      </LinearLayout>
+
+      <Button
+          android:id="@+id/btnTimKiem"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:backgroundTint="#FF3C53"
+          android:text="Tìm kiếm" />
+   </LinearLayout>
+
+</FrameLayout>

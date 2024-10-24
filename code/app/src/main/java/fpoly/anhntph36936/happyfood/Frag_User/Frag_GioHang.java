@@ -28,8 +28,6 @@ import java.util.Calendar;
 import fpoly.anhntph36936.happyfood.API.API_Host;
 import fpoly.anhntph36936.happyfood.Adapter.GioHang_ADT;
 import fpoly.anhntph36936.happyfood.Model.GioHangModel;
-import fpoly.anhntph36936.happyfood.Model.HoaDonModel;
-import fpoly.anhntph36936.happyfood.Model.SanPhamModel;
 import fpoly.anhntph36936.happyfood.Model.UserModel;
 import fpoly.anhntph36936.happyfood.R;
 import retrofit2.Call;
@@ -159,82 +157,28 @@ public class Frag_GioHang extends Fragment {
         edt_ten.setEnabled(false);
         edt_diachi.setEnabled(false);
         totalPrice = 0;
-        String maGH = "";  // Mã giỏ hàng
-        ArrayList<String> listMaSP = new ArrayList<>();  // Danh sách các ID sản phẩm
-
-        for (GioHangModel gioHangModel : list) {
-            if (gioHangModel != null && gioHangModel.getTrangThaiMua() == 1) {
-                totalPrice += gioHangModel.getGiaGH();
-                // Trích xuất chỉ ID sản phẩm từ GioHangModel
-                listMaSP.add(gioHangModel.getMaSP().get_id());  // Giả sử `getId()` là phương thức lấy ID của SanPhamModel
-                maGH = gioHangModel.get_id();  // Giỏ hàng
-            }
-        }
-
-        if (totalPrice == 0) {
-            Toast.makeText(getContext(), "Vui lòng chọn ít nhất một sản phẩm để mua.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         tv_ttien.setText(totalPrice + ".000");
         tv_ngay.setText(getCurrentDate());
         getUserInfo(maUser, edt_sdt, edt_ten, edt_diachi);
 
-        String finalMaGH = maGH;
         view1.findViewById(R.id.btnThanhToan).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HoaDonModel hoaDon = new HoaDonModel();
-                hoaDon.setMaUser(maUser);
-                hoaDon.setNgayMua(getCurrentDate());
-                hoaDon.setTongTien(totalPrice);
-                hoaDon.setDiaChi(edt_diachi.getText().toString());
-                hoaDon.setTrangThaiDH(1);
-                hoaDon.setMaSP(listMaSP);
-                hoaDon.setMaGH(finalMaGH);
+                if (edt_diachi.length() == 0){
+                    Toast.makeText(getContext(), "Vui lòng cập nhật địa chỉ !!!", Toast.LENGTH_SHORT).show();
+                } else {
 
-                // Debug thông tin gửi đi
-                Log.d("HoaDon", "MaUser: " + maUser);
-                Log.d("HoaDon", "TongTien: " + totalPrice);
-                Log.d("HoaDon", "NgayMua: " + getCurrentDate());
-                Log.d("HoaDon", "DiaChi: " + edt_diachi.getText().toString());
-                Log.d("HoaDon", "MaSP: " + listMaSP.toString());
-                Log.d("HoaDon", "MaGH: " + finalMaGH);
+                }
 
-                // Gửi API tạo hóa đơn
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(API_Host.DOMAIN)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                API_Host apiService = retrofit.create(API_Host.class);
-                Call<HoaDonModel> call = apiService.addHoaDon(hoaDon);
-                call.enqueue(new Callback<HoaDonModel>() {
-                    @Override
-                    public void onResponse(Call<HoaDonModel> call, Response<HoaDonModel> response) {
-                        if (response.isSuccessful()) {
-                            HoaDonModel order = response.body();
-                            Toast.makeText(getContext(), "Mua hàng thành công", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        } else {
-                            Log.e("Order Error", "Error: " + response.code());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<HoaDonModel> call, Throwable t) {
-                        Log.e("Request Failed", t.getMessage());
-                    }
-                });
             }
         });
-
         view1.findViewById(R.id.btnHuy_TT).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
             }
         });
+
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
     }

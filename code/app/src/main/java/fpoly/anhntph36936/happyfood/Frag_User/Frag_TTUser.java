@@ -22,9 +22,7 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 
 import fpoly.anhntph36936.happyfood.API.API_Host;
-import fpoly.anhntph36936.happyfood.Main.Main_DH;
 import fpoly.anhntph36936.happyfood.Main.Main_Login;
-import fpoly.anhntph36936.happyfood.MainActivity;
 import fpoly.anhntph36936.happyfood.Model.UserModel;
 import fpoly.anhntph36936.happyfood.R;
 import retrofit2.Call;

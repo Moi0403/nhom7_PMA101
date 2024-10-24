@@ -3,8 +3,8 @@ package fpoly.anhntph36936.happyfood.API;
 import java.util.ArrayList;
 
 import fpoly.anhntph36936.happyfood.Model.GioHangModel;
-import fpoly.anhntph36936.happyfood.Model.HoaDonModel;
 import fpoly.anhntph36936.happyfood.Model.SanPhamModel;
+import fpoly.anhntph36936.happyfood.Model.ThanhToanModel;
 import fpoly.anhntph36936.happyfood.Model.UserModel;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -62,16 +62,6 @@ public interface API_Host {
     @PUT("api/up_gh/{id}")
     Call<ArrayList<GioHangModel>> up_gh(@Path("id") String id, @Body GioHangModel gioHangModel);
 
-    @GET("/api/list_hd")
-    Call<ArrayList<HoaDonModel>> getHD();
-
-    @POST("/api/add_hd")
-    Call<HoaDonModel> addHoaDon(@Body HoaDonModel model);
-
-    @GET("/api/get_hd/{maUser}")
-    Call<HoaDonResponse> getHoaDonByUser(@Path("maUser") String maUser);
-
-
-
-
+    @POST("api/add_tt")
+    Call<ThanhToanModel> addThanhToan(@Body ThanhToanModel thanhToan);
 }

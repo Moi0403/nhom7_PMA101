@@ -40,6 +40,7 @@ public class Main_ChiTietSP extends AppCompatActivity {
 
 
 
+
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,12 +50,13 @@ public class Main_ChiTietSP extends AppCompatActivity {
     }
 
     private void getSP(String id){
+        SanPhamModel model = new SanPhamModel();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_Host.DOMAIN)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         API_Host apiService = retrofit.create(API_Host.class);
-        Call<SanPhamModel> call = apiService.getSP(id); // Gọi API trả về 1 SanPhamModel
+        Call<SanPhamModel> call = apiService.getSP(model.get_id()); // Gọi API trả về 1 SanPhamModel
         call.enqueue(new Callback<SanPhamModel>() {
             @Override
             public void onResponse(Call<SanPhamModel> call, Response<SanPhamModel> response) {
